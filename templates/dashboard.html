@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .active-tab {
+            border-bottom: 3px solid #3b82f6;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        /* Header action buttons styling */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            position: absolute;
+            top: 0;
+            right: 0;
+        }
+        .header-btn {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        .header-btn.download-btn {
+            background-color: #f97316;
+        }
+        .header-btn:hover {
+            background-color: #2563eb;
+        }
+        .header-btn.download-btn:hover {
+            background-color: #ea580c;
+        }
+        .header-btn svg {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.5rem;
+        }
+        /* Dashboard Tabs for sections */
+        .dashboard-tabs {
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+        .dashboard-tabs ul {
+            display: flex;
+            -webkit-overflow-scrolling: touch;
+            overflow-x: auto;
+            justify-content: center;
+        }
+        .dashboard-tabs li a {
+            display: inline-block;
+            padding: 1rem 1.25rem;
+            color: #718096;
+            font-weight: 500;
+            white-space: nowrap;
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease-in-out;
+        }
+        .dashboard-tabs li a:hover {
+            color: #2d3748;
+        }
+        .dashboard-tabs li a.active-tab {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            font-weight: 600;
+        }
+        /* Tab content styling */
+        .dashboard-tab-content {
+            display: none;
+        }
+        .dashboard-tab-content.active {
+            display: block;
+        }
+        /* Content panel styles */
+        .chart-panel, .kpi-panel, .info-panel {
+            background: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+        }
+        .chart-panel h3, .kpi-panel h3, .info-panel h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            width: 100%;
+            text-align: center;
+        }
+        /* Message box styling */
+        .dashboard-message-box {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .dashboard-message-box.info { 
+            background-color: #dbeafe; 
+            color: #2563eb; 
+            border: 1px solid #93c5fd; 
+        }
+        .dashboard-message-box.success { 
+            background-color: #d1fae5; 
+            color: #065f46; 
+            border: 1px solid #10b981; 
+        }
+        .dashboard-message-box.error { 
+            background-color: #fee2e2; 
+            color: #dc2626; 
+            border: 1px solid #ef4444; 
+        }
+        .dashboard-message-box.warning { 
+            background-color: #fffbeb; 
+            color: #d97706; 
+            border: 1px solid #fcd34d; 
+        }
+
+        /* Bundle Recommendation specific styles */
+        .bundle-card {
+            background-color: #f0f4ff;
+            border: 1px solid #93c5fd;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .bundle-card-icon {
+            font-size: 2rem;
+            color: #3b82f6;
+        }
+        .bundle-card-content {
+            flex-grow: 1;
+        }
+        .bundle-card-title {
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .bundle-item-pill {
+            background-color: #bfdbfe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .bundle-reason {
+            font-size: 0.875rem;
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        /* Pricing Optimization Specific Styles */
+        .pricing-optimization-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .pricing-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .pricing-card:hover {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-8">
+        <div class="flex justify-between items-center mb-6 relative">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Retail Analytics Dashboard</h1>
+                <p class="text-gray-500">Comprehensive insights from your sales data</p>
+            </div>
+            <div class="header-actions">
+                <a href="{{ url_for('data.download_cleaned_data') }}" class="header-btn download-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download Data
+                </a>
+                <a href="{{ url_for('data.data_ingestion_page') }}" class="header-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    Upload New
+                </a>
+            </div>
+        </div>
+
+        <div class="dashboard-tabs">
+            <ul role="tablist">
+                <li><a href="#overview-tab" class="py-4 px-2 hover:text-gray-700 active-tab" role="tab" aria-controls="overview-tab" aria-selected="true">Overview</a></li>
+                <li><a href="#bundle-recommendations-tab" class="py-4 px-2 hover:text-gray-700" role="tab" aria-controls="bundle-recommendations-tab" aria-selected="false">Bundle Recommendations</a></li>
+                <li><a href="#pricing-optimization-tab" class="py-4 px-2 hover:text-gray-700" role="tab" aria-controls="pricing-optimization-tab" aria-selected="false">Pricing Optimization</a></li>
+            </ul>
+        </div>
+        
+        <div id="dashboard-tab-content-container">
+            <!-- OVERVIEW TAB -->
+            <div id="overview-tab" class="dashboard-tab-content active">
+                <div class="dashboard-message-box {{ dashboard_message.type }}" id="dashboardMessage">
+                    {{ dashboard_message.text }}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 mt-6">
+                    <div class="kpi-panel">
+                        <div class="flex items-center justify-between text-gray-500 w-full mb-2">
+                            <p class="font-medium">Total Revenue</p>
+                            <i class="fas fa-sack-dollar text-xl"></i>
+                        </div>
+                        <h2 class="text-4xl font-bold mt-2 text-gray-800">${{ total_revenue }}</h2>
+                        <p class="text-green-500 text-sm mt-1">
+                            <i class="fas fa-arrow-up text-xs mr-1"></i>
+                            {{ revenue_trend }} from last month
+                        </p>
+                    </div>
+                    <div class="kpi-panel">
+                        <div class="flex items-center justify-between text-gray-500 w-full mb-2">
+                            <p class="font-medium">Total Transactions</p>
+                            <i class="fas fa-receipt text-xl"></i>
+                        </div>
+                        <h2 class="text-4xl font-bold mt-2 text-gray-800">{{ total_transactions }}</h2>
+                        <p class="text-green-500 text-sm mt-1">
+                            <i class="fas fa-arrow-up text-xs mr-1"></i>
+                            {{ transactions_trend }} from last month
+                        </p>
+                    </div>
+                    <div class="kpi-panel">
+                        <div class="flex items-center justify-between text-gray-500 w-full mb-2">
+                            <p class="font-medium">Avg. Order Value</p>
+                            <i class="fas fa-calculator text-xl"></i>
+                        </div>
+                        <h2 class="text-4xl font-bold mt-2 text-gray-800">${{ avg_order_value }}</h2>
+                        <p class="text-gray-400 text-sm mt-1">
+                            <i class="fas fa-chart-line text-xs mr-1"></i>
+                            Industry avg: ${{ industry_avg_aov }}
+                        </p>
+                    </div>
+                    <div class="kpi-panel">
+                        <div class="flex items-center justify-between text-gray-500 w-full mb-2">
+                            <p class="font-medium">Avg. Items/Transaction</p>
+                            <i class="fas fa-box-open text-xl"></i>
+                        </div>
+                        <h2 class="text-4xl font-bold mt-2 text-gray-800">{{ avg_items_per_transaction }}</h2>
+                        <p class="text-gray-400 text-sm mt-1">
+                            <i class="fas fa-shopping-basket text-xs mr-1"></i>
+                            Basket Size
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <div class="info-panel">
+                        <h3 class="w-full">Top Selling Product</h3>
+                        <p class="text-gray-800 text-2xl font-bold mt-4">{{ top_selling_product.name }}</p>
+                        <p class="text-gray-500 text-sm mt-1 mb-4">{{ top_selling_product.units }} units sold</p>
+                        <div class="w-full bg-gray-200 rounded-full h-4 mt-2">
+                            <div class="bg-blue-600 h-4 rounded-full" style="width: {{ top_selling_product.sales_percentage }}%"></div>
+                        </div>
+                        <p class="text-sm font-medium text-blue-600 mt-2">{{ top_selling_product.sales_percentage }}% of total revenue</p>
+                    </div>
+                    
+                    <div class="info-panel">
+                        <h3 class="w-full">Customer Insights Overview</h3>
+                        <div class="mt-4 space-y-4 w-full">
+                            {% for insight in customer_insights_overview %}
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-700">{{ insight.insight }}</span>
+                                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-200 text-blue-800">
+                                    {{ insight.metric }}
+                                </span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUNDLE RECOMMENDATIONS TAB WITH DYNAMIC PRICING -->
+            <div id="bundle-recommendations-tab" class="dashboard-tab-content">
+                <div class="dashboard-message-box info">
+                    This tab displays recommended bundles with real-time pricing optimization using your dataset prices.
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mt-6 mb-4 text-center">Actionable Bundle Recommendations</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="info-panel">
+                        <h3 class="w-full">"Complementary Collection" Offers</h3>
+                        <div class="mt-4 space-y-4 w-full text-left">
+                            {% if bogo_bundles %}
+                                {% for bundle in bogo_bundles %}
+                                <div class="bundle-card">
+                                    <i class="fas fa-gift bundle-card-icon"></i>
+                                    <div class="bundle-card-content">
+                                        <div class="bundle-card-title">
+                                            Buy: <span class="bundle-item-pill bg-blue-200 text-blue-800">{{ bundle.buy_display if bundle.buy_display else bundle.buy_item }}</span> 
+                                            Get Discount: <span class="bundle-item-pill bg-green-200 text-green-800">{{ bundle.get_display if bundle.get_display else bundle.get_item }}</span>
+                                        </div>
+                                        
+                                        <!-- DYNAMIC PRICING INFORMATION -->
+                                        {% if bundle.has_pricing %}
+                                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border">
+                                            <div class="grid grid-cols-3 gap-2 text-sm">
+                                                <div class="text-center">
+                                                    <div class="text-xs text-gray-500">Individual Total</div>
+                                                    <div class="font-bold text-red-600">${{ bundle.individual_total_price }}</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-xs text-gray-500">Bundle Price</div>
+                                                    <div class="font-bold text-green-600">${{ bundle.optimized_price }}</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-xs text-gray-500">You Save</div>
+                                                    <div class="font-bold text-blue-600">${{ bundle.savings }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-center mt-2 pt-2 border-t border-gray-200">
+                                                <span class="text-sm font-semibold text-purple-600">{{ bundle.discount_percentage }}% Discount • ${{ bundle.revenue_impact }}K Revenue Impact</span>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                                            <span class="text-xs text-yellow-700">
+                                                {% if bundle.pricing_error %}
+                                                    Pricing calculation error: {{ bundle.pricing_error }}
+                                                {% else %}
+                                                    Pricing data not available for this bundle
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="mt-2 mb-2">
+                                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-purple-100 text-purple-800 mr-2">
+                                                Validation Score: {{ bundle.confidence_score }}%
+                                            </span>
+                                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-blue-100 text-blue-800">
+                                                Co-occurrence: {{ bundle.temporal_cooccurrence }}
+                                            </span>
+                                        </div>
+                                        <p class="bundle-reason">{{ bundle.reason }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-gray-500 text-center w-full">No validated "Complementary Collection" bundles available with current data and validation criteria.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="info-panel">
+                        <h3 class="w-full">"Buy Now, Save Next" Offers</h3>
+                        <div class="mt-4 space-y-4 w-full text-left">
+                            {% if next_purchase_offers %}
+                                {% for offer in next_purchase_offers %}
+                                <div class="bundle-card">
+                                    <i class="fas fa-arrow-right bundle-card-icon"></i>
+                                    <div class="bundle-card-content">
+                                        <div class="bundle-card-title">
+                                            Buy: <span class="bundle-item-pill bg-blue-200 text-blue-800">{{ offer.buy_item }}</span> 
+                                            Save on Next: <span class="bundle-item-pill bg-green-200 text-green-800">{{ offer.next_item }}</span>
+                                        </div>
+                                        
+                                        <!-- DYNAMIC PRICING INFORMATION -->
+                                        {% if offer.has_pricing %}
+                                        <div class="mt-3 p-3 bg-gray-50 rounded-lg border">
+                                            <div class="grid grid-cols-3 gap-2 text-sm">
+                                                <div class="text-center">
+                                                    <div class="text-xs text-gray-500">First Item</div>
+                                                    <div class="font-bold text-blue-600">${{ offer.buy_item_price }}</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-xs text-gray-500">Next Item</div>
+                                                    <div class="font-bold text-green-600">${{ (offer.next_item_price - offer.savings)|round(2) }}</div>
+                                                    <div class="text-xs text-red-500">({{ offer.discount_percentage }}% off)</div>
+                                                </div>
+                                                <div class="text-center">
+                                                    <div class="text-xs text-gray-500">Bundle Total</div>
+                                                    <div class="font-bold text-purple-600">${{ offer.optimized_price }}</div>
+                                                </div>
+                                            </div>
+                                            <div class="text-center mt-2 pt-2 border-t border-gray-200">
+                                                <span class="text-sm font-semibold text-purple-600">Save ${{ offer.savings }} • ${{ offer.revenue_impact }}K Revenue Impact</span>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <div class="mt-2 p-2 bg-yellow-50 rounded border border-yellow-200">
+                                            <span class="text-xs text-yellow-700">
+                                                {% if offer.pricing_error %}
+                                                    Pricing calculation error: {{ offer.pricing_error }}
+                                                {% else %}
+                                                    Pricing data not available for this bundle
+                                                {% endif %}
+                                            </span>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <div class="mt-2 mb-2">
+                                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-orange-100 text-orange-800 mr-2">
+                                                Confidence: {{ offer.confidence_level }}
+                                            </span>
+                                            <span class="inline-block px-2 py-1 text-xs font-semibold rounded bg-teal-100 text-teal-800">
+                                                Support: {{ offer.support_percentage }}
+                                            </span>
+                                        </div>
+                                        <p class="bundle-reason">{{ offer.reason }}</p>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-gray-500 text-center w-full">No "Buy Now, Save Next" offers available with current parameters.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRICING OPTIMIZATION TAB WITH DYNAMIC DATA -->
+            <div id="pricing-optimization-tab" class="dashboard-tab-content">
+                <div class="dashboard-message-box success">
+                    AI-powered pricing optimization for your recommended bundles based on demand elasticity and market analysis.
+                </div>
+
+                <!-- Pricing KPIs -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 mt-6">
+                    <div class="pricing-optimization-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm opacity-90">Revenue Impact</p>
+                            <i class="fas fa-chart-line text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">{{ pricing_revenue_impact }}</h3>
+                        <p class="text-xs opacity-75 mt-1">Monthly potential</p>
+                    </div>
+                    <div class="pricing-optimization-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm opacity-90">Profit Increase</p>
+                            <i class="fas fa-coins text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">{{ pricing_profit_impact }}</h3>
+                        <p class="text-xs opacity-75 mt-1">Net profit gain</p>
+                    </div>
+                    <div class="pricing-optimization-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm opacity-90">Avg Discount</p>
+                            <i class="fas fa-percentage text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">{{ pricing_avg_discount }}</h3>
+                        <p class="text-xs opacity-75 mt-1">Optimization rate</p>
+                    </div>
+                    <div class="pricing-optimization-card">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-sm opacity-90">Active Strategies</p>
+                            <i class="fas fa-cogs text-xl"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold">{{ pricing_optimized_bundles }}</h3>
+                        <p class="text-xs opacity-75 mt-1">Ready to deploy</p>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-bold text-gray-800 mt-8 mb-6">Dynamic Bundle Pricing Strategies</h2>
+
+                <!-- Optimized Bundle Pricing Display -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {% if pricing_bundle_pricing %}
+                        {% for bundle in pricing_bundle_pricing %}
+                        <div class="pricing-card">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h4 class="font-semibold text-gray-800">{{ bundle.bundle_name }}</h4>
+                                    <p class="text-sm text-gray-600">{{ bundle.bundle_type }} Strategy</p>
+                                </div>
+                                <span class="px-2 py-1 text-xs rounded-full 
+                                    {% if bundle.bundle_type == 'Complementary Collection' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-orange-100 text-orange-800{% endif %}">
+                                    {{ bundle.bundle_type }}
+                                </span>
+                            </div>
+
+                            <!-- Dynamic Pricing Strategy Display -->
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Individual Total</p>
+                                    <div class="px-3 py-2 bg-red-100 text-red-700 rounded font-bold">${{ bundle.individual_total_price }}</div>
+                                    <p class="text-xs text-gray-500 mt-1">Regular pricing</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Optimized Bundle</p>
+                                    <div class="px-3 py-2 bg-green-100 text-green-700 rounded font-bold">${{ bundle.optimized_price }}</div>
+                                    <p class="text-xs text-gray-500 mt-1">{{ bundle.discount_percentage }}% discount</p>
+                                </div>
+                            </div>
+
+                            <!-- Bundle Metrics -->
+                            <div class="grid grid-cols-3 gap-3 text-center text-sm mb-4">
+                                <div class="p-2 bg-blue-50 rounded">
+                                    <p class="font-semibold text-blue-600">${{ bundle.revenue_impact }}K</p>
+                                    <p class="text-xs text-gray-600">Revenue Impact</p>
+                                </div>
+                                <div class="p-2 bg-green-50 rounded">
+                                    <p class="font-semibold text-green-600">{{ bundle.profit_margin }}%</p>
+                                    <p class="text-xs text-gray-600">Profit Margin</p>
+                                </div>
+                                <div class="p-2 bg-purple-50 rounded">
+                                    <p class="font-semibold text-purple-600">{{ bundle.estimated_sales }}</p>
+                                    <p class="text-xs text-gray-600">Est. Sales</p>
+                                </div>
+                            </div>
+
+                            <!-- Strategy Details -->
+                            <div class="bg-gray-50 p-3 rounded">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm font-medium text-gray-700">{{ bundle.offer_description }}</span>
+                                    <span class="text-xs text-gray-500">{{ bundle.confidence }}% Confidence</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-gradient-to-r from-blue-400 to-green-400 h-2 rounded-full" 
+                                         style="width: {{ bundle.confidence_score }}%"></div>
+                                </div>
+                                <p class="text-xs text-gray-600 mt-2">
+                                    Pricing optimized using dataset analysis with {{ bundle.discount_percentage }}% discount strategy
+                                </p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="pricing-card text-center py-8 col-span-2">
+                            <i class="fas fa-chart-line text-4xl text-gray-400 mb-4"></i>
+                            <p class="text-gray-600">No bundles available for pricing optimization.</p>
+                            <p class="text-sm text-gray-500">Generate bundle recommendations first to see dynamic pricing strategies.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabLinks = document.querySelectorAll('.dashboard-tabs a[role="tab"]');
+            const tabContents = document.querySelectorAll('.dashboard-tab-content');
+
+            tabLinks.forEach(function(tabLink) {
+                tabLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs and contents
+                    tabLinks.forEach(function(link) {
+                        link.classList.remove('active-tab');
+                        link.setAttribute('aria-selected', 'false');
+                    });
+                    tabContents.forEach(function(content) {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active-tab');
+                    this.setAttribute('aria-selected', 'true');
+                    
+                    // Show corresponding content
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+        });
+
+        // Message box auto-hide functionality
+        setTimeout(function() {
+            const messageBox = document.getElementById('dashboardMessage');
+            if (messageBox && messageBox.classList.contains('success')) {
+                messageBox.style.transition = 'opacity 0.5s ease-out';
+                messageBox.style.opacity = '0';
+                setTimeout(function() {
+                    messageBox.style.display = 'none';
+                }, 500);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

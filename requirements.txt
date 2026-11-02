@@ -1,0 +1,12 @@
+Flask
+Flask-Cors
+pandas
+numpy
+matplotlib
+seaborn
+tabula-py
+openpyxl
+XlsxWriter
+reportlab
+plotly
+scipy

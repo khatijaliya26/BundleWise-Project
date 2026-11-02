@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+ENV/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Runtime uploads and generated outputs
+uploads/*
+!uploads/.gitkeep
+*.log
+*.pdf
+*.xlsx
+*.xls
+*.csv
+
+# Keep only intentionally added screenshot assets
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
