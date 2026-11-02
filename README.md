@@ -218,9 +218,4 @@ For PDF uploads, the file should contain a readable transaction table. PDF extra
 
 ## Team and project context
 
-BundleWise was developed as an MSc Data Science academic project at CHRIST (Deemed to be University), Bengaluru, under the guidance of Dr. Apas Roy. The project report lists Abishai Tom, Liya Khatija and Mansi Sapariya as team members (September 2025).
-
-## License
-
-This project was developed as part of the M.Sc. Data Science program at CHRIST (Deemed to be University), Bengaluru, under the guidance of Dr. Apash Roy.
-
+BundleWise was developed as an MSc Data Science academic project at CHRIST (Deemed to be University), Bengaluru, under the guidance of Dr. Apas Roy. The project report lists Abishai Tom, Liya Khatija and Mansi Sapariya as team members 
