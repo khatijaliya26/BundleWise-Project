@@ -52,7 +52,7 @@ The following screenshots show the main interfaces of BundleWise.
 
 ### 3. Bundle Recommendations and Pricing Optimisation
 
-![Bundle Recommendations and Pricing Optimisation](screenshots/03-bundle-recommendations-with-optimization.png)
+![Bundle Recommendations and Pricing Optimisation](screenshots/03-bundle-recommendations-with-optimized-prices.png)
 
 ### 4. Summary Reports Dashboard
 
